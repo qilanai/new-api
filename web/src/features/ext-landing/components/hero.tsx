@@ -65,10 +65,13 @@ export function Hero(props: HeroProps) {
             <span>{t('Latest flagship models are live')}</span>
           </div>
 
+          {/* Two block lines instead of <br/>: an inline bg-clip-text span can overlap
+              the line above in Firefox and clip its glyphs; the first line is also
+              lifted above the gradient line in paint order. The gradient line stays
+              inline-block so the gradient spans the text, not the whole column. */}
           <h1 className='mt-5 text-[clamp(2rem,4.2vw,3rem)] leading-[1.2] font-semibold tracking-tight text-balance'>
-            {t('One API,')}
-            <br />
-            <span className='bg-gradient-to-r from-cyan-500 via-blue-600 to-fuchsia-600 bg-clip-text text-transparent'>
+            <span className='relative z-10 block'>{t('One API,')}</span>
+            <span className='inline-block bg-gradient-to-r from-cyan-500 via-blue-600 to-fuchsia-600 bg-clip-text pb-[0.06em] text-transparent'>
               {t('all leading AI models')}
             </span>
           </h1>
