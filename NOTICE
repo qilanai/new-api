@@ -55,4 +55,17 @@ Desktop distributions include Electron, which embeds Chromium, Node.js, V8,
 and other third-party components. Electron and Chromium third-party license
 notices must remain available with desktop installers and installed apps.
 
+==== Fork Modifications ====
+
+This copy is a modified version of new-api, maintained as the fork
+https://github.com/qilanai/new-api by qilanai and contributors.
+Modifications Copyright (c) 2026 qilanai and contributors, licensed under the
+GNU Affero General Public License v3.0, the same license as the original work.
+
+The original project, its authors, the attribution text above, and the link to
+https://github.com/QuantumNous/new-api are preserved unchanged. Fork-specific
+code lives under the ext/ directory and the ext-* frontend features; every
+other change to upstream files is recorded in the upstream file ledger in
+.agents/rules/fork.md. First modified: 2026-10-10.
+
 ==== End of Notices ====

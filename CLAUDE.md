@@ -14,3 +14,4 @@ Rules:
 - After reading, follow every rule in `AGENTS.md` for the rest of the work.
 - If the task touches `web/`, also Read `web/AGENTS.md` before editing frontend files.
 - If the task touches billing as defined under **Billing rules (mandatory read gate)** in `AGENTS.md`, also Read `.agents/rules/billing.md` in full before planning or editing. Tasks outside that definition may skip it.
+- This repository is a fork of QuantumNous/new-api. After `AGENTS.md`, also Read `.agents/rules/fork.md` in full before planning, coding, or reviewing; it defines where fork changes may live, the A/B change classification, and the upstream sync procedure.
