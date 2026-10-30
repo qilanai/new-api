@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/QuantumNous/new-api/common"
+	extrouter "github.com/QuantumNous/new-api/ext/router"
 	"github.com/QuantumNous/new-api/middleware"
 
 	"github.com/gin-gonic/gin"
@@ -14,6 +15,7 @@ import (
 
 func SetRouter(router *gin.Engine, assets WebAssets) {
 	SetApiRouter(router)
+	extrouter.SetExtRouter(router)
 	SetDashboardRouter(router)
 	SetRelayRouter(router)
 	SetTaskPluginProtocolRouter(router)

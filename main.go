@@ -18,6 +18,7 @@ import (
 	"github.com/QuantumNous/new-api/common"
 	"github.com/QuantumNous/new-api/constant"
 	"github.com/QuantumNous/new-api/controller"
+	"github.com/QuantumNous/new-api/ext"
 	"github.com/QuantumNous/new-api/i18n"
 	"github.com/QuantumNous/new-api/logger"
 	"github.com/QuantumNous/new-api/middleware"
@@ -60,6 +61,11 @@ func main() {
 	err := InitResources()
 	if err != nil {
 		common.FatalLog(common.LogText("failed to initialize resources: %s", err.Error()))
+		return
+	}
+
+	if err := ext.Init(); err != nil {
+		common.FatalLog(common.LogText("ext: failed to initialize extensions: %s", err.Error()))
 		return
 	}
 

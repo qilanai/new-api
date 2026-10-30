@@ -22,11 +22,9 @@ import {
   ClipboardList,
   CreditCard,
   FileText,
-  FlaskConical,
   Key,
   LayoutDashboard,
   ListTodo,
-  MessageSquare,
   PlugZap,
   Radio,
   ServerCog,
@@ -40,6 +38,7 @@ import {
 import { useTranslation } from 'react-i18next'
 
 import type { SidebarData } from '@/components/layout/types'
+import { getExtAppsNavigationItems } from '@/features/ext-apps/navigation'
 import { ROLE } from '@/lib/roles'
 
 /**
@@ -56,18 +55,7 @@ export function useSidebarData(): SidebarData {
       {
         id: 'chat',
         title: t('Chat'),
-        items: [
-          {
-            title: t('Playground'),
-            url: '/playground',
-            icon: FlaskConical,
-          },
-          {
-            title: t('Chat'),
-            icon: MessageSquare,
-            type: 'chat-presets',
-          },
-        ],
+        items: getExtAppsNavigationItems(t),
       },
       {
         id: 'general',
@@ -104,6 +92,11 @@ export function useSidebarData(): SidebarData {
             activeUrls: ['/usage-logs/drawing'],
             configUrls: ['/usage-logs/drawing', '/usage-logs/task'],
             icon: ListTodo,
+          },
+          {
+            title: t('Asset Library'),
+            url: '/ext/assets/',
+            icon: FileText,
           },
         ],
       },

@@ -52,16 +52,17 @@
 **目录与命名空间**
 
 - fork 新增的 Go 代码 MUST 放在根目录 `ext/` 下，按层分子包：`ext/controller`、`ext/service`、`ext/model`、`ext/setting`、`ext/router`、`ext/relay`（如需要）。禁止在上游目录新建业务文件。
-- `ext/` 内部遵守 `AGENTS.md` 的全部后端规则：JSON 走 `common.Marshal` 等包装函数，行锁用 `lockForUpdate(tx)`，测试用 testify，可选标量字段用指针加 `omitempty`。
+- `ext/` 内部遵守 `AGENTS.md` 的全部后端规则：JSON 走 `common.Marshal` 等包装函数，测试用 testify，可选标量字段用指针加 `omitempty`。`model.lockForUpdate` 当前未导出，`ext/model` 不能直接调用；需要行锁时，先提供经三库验证的最小公开接口并登记例外，禁止复制私有实现。
 - `ext/` 只依赖上游包的导出 API，禁止依赖上游未导出符号或复制上游私有函数。能用接口（`channel.Adaptor`、`channel.TaskAdaptor`、插件 API v1）解决的不要改上游实现。
 
 **唯一注册入口**
 
-- `ext/register.go` 是扩展层唯一入口，提供 `ext.Init()`。上游代码允许的改动上限为三行：
-  1. `main.go` import 块加 `_ "github.com/QuantumNous/new-api/ext"`，让各子包的 `init()` 完成设置与权限注册；
-  2. `main.go` 在 `InitResources()` 成功后调用 `ext.Init()`，执行 fork 自己的迁移和运行时装配；
-  3. `router/main.go` 的 `SetRouter` 中调用 `extrouter.SetExtRouter(router)`。
-- 超出这三行的上游改动一律视为例外，MUST 在第 11 节登记原因。
+- `ext/register.go` 是唯一初始化入口，提供 `ext.Init() error`。应用目录已接入该入口，当前无需额外迁移或运行资源。上游接入位置限制为：
+  1. `main.go` import 块加具名导入 `"github.com/QuantumNous/new-api/ext"`，让各子包的 `init()` 完成设置与权限注册；
+  2. `main.go` 在 `InitResources()` 成功后调用 `ext.Init()`，执行 fork 自己的迁移和运行时装配，并处理初始化错误；
+  3. `router/main.go` 导入扩展路由包，在 `SetRouter` 中调用 `extrouter.SetExtRouter(router)`。
+- 按接入位置和职责控制改动，不限制为字面三行。实际接入后 MUST 在第 11 节登记；新增接入位置须登记原因。
+- fork 维护工具放在 `ext/tools/`，不作为 Go 运行时扩展导入。
 
 **配置、权限、环境变量**
 
@@ -82,6 +83,7 @@
 
 - fork 功能 MUST 放在 `web/src/features/ext-<name>/`，内部结构沿用 `web/AGENTS.md` 的 `components/`、`lib/`、`hooks/`、`api.ts`、`types.ts` 约定。
 - 路由使用文件式路由，放在 `web/src/routes/_authenticated/ext/<name>/` 下，由 TanStack Router 自动生成到 `routeTree.gen.ts`；禁止改动上游路由文件。
+- 用户明确指定应用中心为 `/apps`、Studio 为 `/apps/studio`；这些新增路由使用 `_authenticated/apps/`，业务代码仍在 `features/ext-*`。此产品路径例外登记在第 11 节，不修改既有上游路由。
 - 以下热点文件无法避开，改动规则为"一行 import 加一个数组元素"，禁止在其中写逻辑：
   - `web/src/components/layout/lib/sidebar-view-registry.ts`（侧边栏嵌套视图）
   - `web/src/components/layout/config/system-settings.config.ts`（系统设置导航）
@@ -118,20 +120,30 @@
 
 **同步流程**
 
-- 同步 MUST 使用 merge，禁止 rebase `develop`。
+- 同步 MUST 使用 merge，禁止 rebase `develop`；同步 PR MUST 保留 merge 历史，禁止 squash 或 rebase merge。
 - 节奏跟随上游 rc tag，两次同步间隔不超过两周；上游发布安全修复时立即同步。
 - 同步前后各执行一次"维护债务"统计，触碰上游文件数超过 15 个时，下一个迭代 MUST 优先偿还（上游化或迁入 `ext/`）。
 
 ```bash
+# 仅尚未配置 upstream 时执行
 git remote add upstream https://github.com/QuantumNous/new-api.git
-git fetch upstream --tags
+
+# 平时检查：包含已暂存、未暂存、未跟踪文件，直接读取第 11 节登记表
+python3 ext/tools/upstream.py check --working-tree
+
+# 同步试跑：拉取上游分支，在临时 worktree 合并并执行质量门禁
+python3 ext/tools/upstream.py trial --fetch --verify --report /tmp/new-api-upstream-report.md
+
+# 可选择已经获取到本地的 tag / commit；省略 --verify 时只检查合并和登记表
+python3 ext/tools/upstream.py trial --upstream <tag-or-commit> --verify
 
 # 更新镜像分支
 git checkout main && git merge --ff-only upstream/main && git push origin main
 
-# 合并到集成分支
-git checkout develop
-git merge upstream/main -m "chore(sync): merge upstream v1.0.0-rc.NN"
+# 从 develop 创建同步分支，使用试跑报告里记录的同一个上游提交
+git switch -c sync/upstream-YYYYMMDD develop
+git merge <verified-upstream-sha> -m "chore(sync): merge upstream v1.0.0-rc.NN"
+# 核对冲突、重新验证后，通过保留 merge 历史的 PR 合入 develop
 
 # 维护债务：排除扩展层后 fork 触碰的上游文件
 git diff --stat upstream/main...develop -- . ':!ext' ':!web/src/features/ext-*' ':!web/src/routes/_authenticated/ext' ':!.agents/rules/fork.md'
@@ -139,7 +151,10 @@ git diff --stat upstream/main...develop -- . ':!ext' ':!web/src/features/ext-*' 
 
 - 冲突解决顺序：先保留上游改动，再把 fork 逻辑迁回 `ext/`；只有确认无法迁出时才在上游文件内合并，并更新第 11 节。
 - 同步后 MUST 完整跑第 10 节的本地门禁，再推送。
-- 建议增加每周定时 CI：试合并 `upstream/main` 到 `develop` 并跑全部测试，仅报告不推送。
+- 试跑只包含 `--head` 指定的已提交版本（默认 `HEAD`），不包含当前未提交改动。不会切换或推进分支，不暂存用户改动，不推送，不改 Git 配置；临时 worktree 在成功或失败后清理。`--fetch` 只获取 upstream 分支，不自动获取 tag。
+- 试跑报告列出双方都改过的文件、真实合并冲突、同步前后登记情况以及是否执行质量检查。退出码 `0` 表示所选检查通过，`1` 表示冲突、漏登记或质量检查失败，`2` 表示参数、Git 或文件错误。没有运行 `--verify` 的通过结果不代表构建或功能验证通过。
+- `.github/workflows/ext-fork.yml` 在 develop 的 push / PR 上检查当前版本，在手动触发或每周一 02:23 UTC 定时触发时试合并 upstream/main 并执行质量门禁，只报告不推送。
+- **定时启用条件：** GitHub 的 schedule 要求 workflow 位于默认分支。当前远端默认分支为 `main`；保持 main 为纯上游镜像时，应在工具合入 develop 后，将仓库默认分支改为 develop，再启用定时任务。该远端设置不由脚本自动修改。默认分支上的文件也决定手动运行入口是否可用；普通 develop push / PR 检查不受此限制。参见 [GitHub 事件文档](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#schedule)。
 
 ## 9. 版本与发布
 
@@ -151,6 +166,8 @@ git diff --stat upstream/main...develop -- . ':!ext' ':!web/src/features/ext-*' 
 ## 10. 质量门禁
 
 上游 CI 只跑 vet、build、三模块测试以及前端 typecheck 与 vitest；`AGENTS.md` 要求但 CI 未覆盖的检查由 fork 补齐。提交前 MUST 在本地全部通过：
+
+统一入口为 `bash ext/tools/verify.sh all`；也可选择 `backend` 或 `frontend`。它逐项执行并汇总失败，包含下列检查及前端生产构建。工具自身回归用 `python3 -B -m unittest discover -s ext/tools -p 'test_*.py' -v`。这些通用检查不能替代具体需求要求的业务回归、真实三库验证或新装/升级迁移验证；未提供三库测试 DSN 时会明确提示。
 
 ```bash
 # 后端（三个模块独立构建，与 CI 一致）
@@ -173,23 +190,38 @@ bun run i18n:sync   # 改动过 locale 或 t() 文案时
 
 B 类改动每触碰一个上游文件（`ext/`、`web/src/features/ext-*`、`web/src/routes/_authenticated/ext/`、本文件之外的任何文件）MUST 在此登记。同步上游时按本表逐项核对；条目被上游化或迁入扩展层后删除。
 
+本表同时是 `ext/tools/upstream.py` 的机器可读登记表：首列保留反引号包裹的仓库相对路径，支持目录前缀（以 `/` 结尾）和 glob。漏登记导致检查失败；不再匹配实际差异的条目会提示复核。删除与重命名的旧路径也须登记。未实现的计划不放入本表。维护债务计数只包括基线已有文件，扩展目录外新增文件另行列出并检查登记。
+
 | 文件 | 改动摘要 | 原因 | 引入提交 | 退出条件 |
 | --- | --- | --- | --- | --- |
-| `main.go` | 增加 `ext` blank import 与 `ext.Init()` 调用 | 扩展层注册入口（第 3 节允许） | 待填 | 长期保留 |
-| `router/main.go` | 调用 `SetExtRouter` | 扩展层路由入口（第 3 节允许） | 待填 | 长期保留 |
 | `CLAUDE.md` | 末尾追加读取本文件的指令 | 让 AI 助手读到 fork 规则 | develop 首批提交 2026-10-11 | 长期保留 |
 | `NOTICE` | 末尾追加 fork 修改声明 | AGPLv3 第 7(c) 条 | develop 首批提交 2026-10-11 | 长期保留 |
 | `web/public/brand/` | 新增 Elink Nexus 品牌 SVG（图标、横版组合标）与 `clients/` 下 4 个客户端图标 | 控制台 Logo 与首页共用的品牌资源 | edf732c99 | 长期保留 |
 | `web/src/features/home/index.tsx` | 默认首页分支改为渲染 `@/features/ext-landing` 的 `Landing`，删除上游 Hero/Stats/Features/HowItWorks/CTA 的引用 | 品牌首页替换上游默认首页；自定义首页内容（iframe / Markdown / HTML）分支与页头页脚保持上游 | edf732c99 | 长期保留；同步时若上游重构 Home 需重新套用这一处替换 |
-| `web/src/i18n/locales/*.json` | 通过 i18n 脚本新增首页文案 179 个键（七种语言） | 首页文案 i18n；按 §7 走脚本写入 | edf732c99 | 长期保留 |
+| `web/src/i18n/locales/*.json` | 通过 i18n 脚本新增首页文案 179 个键及应用中心文案 14 个键及 AI应用菜单文案（七种语言） | 首页与原生应用 i18n；按 §7 走脚本写入 | edf732c99；2026-10-14 原生应用 | 长期保留 |
 | `web/src/components/layout/components/footer.tsx` | 底栏改为居中两行：版权行在上，New API 署名缩小放在下一行；署名文案与链接原样保留。收紧页脚上下留白（容器 `pt-10 pb-5 md:pt-12 md:pb-6`，底栏 `mt-8 pt-4 gap-y-1`） | 品牌页脚排版；署名按 NOTICE 第 7 条与 §1 不得删除 | edf732c99 | 长期保留 |
 | `web/src/components/layout/components/app-header.tsx` | 删除页头里的 `SystemUpdateAction`（版本号 / 上游更新检查）及其 import | 品牌站不展示上游版本号；更新检查仍保留在系统设置 → 维护 | edf732c99 | 长期保留 |
 | `web/src/components/layout/components/public-header.tsx` | 同上，删除公共页头里的 `SystemUpdateAction` 及其 import | 同上 | edf732c99 | 长期保留 |
 | `controller/subscription_payment_stripe.go` | 订阅走 Stripe Checkout 时不再传 `customer_creation`（subscription 模式下 Stripe 直接 400 拒绝，导致无法购买套餐） | A 类通用 bug 修复，先在 fork 落地 | 8312cb653 | 向上游提交 PR，合入并同步后删除 |
+| `.github/workflows/ext-fork.yml` | fork 质量检查及上游合并试跑，输出 Actions 摘要 | 独立 workflow，保留上游 CI | 2026-10-14 fork 维护工具 | 长期保留 |
+| `go.mod` | 引入阿里云 OSS Go SDK | 素材库存储适配 | 2026-10-30 素材库 | 不再使用 OSS SDK 时移除 |
+| `go.sum` | 记录 OSS SDK 依赖校验 | 可重复构建 | 2026-10-30 素材库 | 不再使用 OSS SDK 时移除 |
+| `.env.example` | 登记素材库 OSS 与容量设置 | 部署配置 | 2026-10-30 素材库 | 素材库移除时删除 |
+| `main.go` | 资源初始化后调用 ext.Init 并处理错误 | 统一扩展初始化入口 | 2026-10-14 原生应用 | 长期保留 |
+| `router/main.go` | 注册 ext 应用接口，复用主站鉴权与用户模型查询 | 同源应用接口入口 | 2026-10-14 原生应用 | 长期保留 |
+| `web/src/routes/_authenticated/apps/` | 新增应用中心、AI 对话（LobeHub）和 Studio 文件路由 | 用户明确指定 /apps 路径；继承主站认证守卫 | 2026-10-14 原生应用 | 长期保留 |
+| `web/src/routeTree.gen.ts` | 路由插件生成应用中心、AI 对话与 Studio 路由 | 文件路由自动产物，禁止手改 | 2026-10-14 原生应用 | 随扩展路由生成 |
+| `web/src/hooks/use-sidebar-data.ts` | 聊天分组导航项由 `ext-apps/navigation` 提供（统一 AI应用入口），移除旧游乐场与旧聊天菜单 | 在主导航统一承接应用中心与内嵌 LobeHub | 2026-10-14 原生应用 | 上游提供独立导航注册点时迁出 |
+| `web/src/components/layout/types.ts` | NavLink 增加可选 newTab 配置 | 独立工作台从主站新页签打开 | 2026-10-23 AI应用入口 | 上游支持新页签导航时迁出 |
+| `web/src/components/layout/components/nav-group.tsx` | newTab 导航项渲染安全的新页签原生链接 | AI应用直接打开独立工作台首页 | 2026-10-23 AI应用入口 | 上游支持新页签导航时迁出 |
+| `web/src/components/layout/lib/sidebar-view-registry.ts` | 使用顶层 type import 满足 lint；应用中心沿用主导航，不注册独立侧栏视图 | 应用列表直接展示于控制台内容区 | 2026-10-15 应用中心导航 | 上游修正类型导入后迁出 |
+| `.env.example` | 增加 EXT_STUDIO_UPSTREAM_URL、EXT_CHAT_UPSTREAM_URL 与 EXT_WORKSPACE_UPSTREAM_URL 配置示例 | 应用中心与 AI 对话代理独立应用服务 | 2026-10-15 Studio 接入 | 长期保留 |
+| `web/rsbuild.config.ts` | 将 /apps/studio、/apps/workspace 与旧 /apps/lobehub 代理至后端文档入口 | 本地开发保持账号与应用 API 同源 | 2026-10-15 Studio 接入 | 长期保留 |
+| `relay/common/relay_info.go` | 识别已验证 Studio 会话，复用 Playground 的无 API Token 额度路径 | 保留主站用户/订阅结算，避免创建额外 API Key；标记只由扩展鉴权链设置 | 2026-10-15 Studio 接入 | 上游提供会话 relay 扩展点后迁出 |
 
 ## 12. 待决事项
 
-- 扩展层命名 `ext` 为占位，可在第一个 B 类功能落地前改为品牌前缀；一旦落地禁止再改。
+- 扩展层命名已固定为 `ext`，原生应用接口开始使用，禁止再改。
 - 同步节奏（每个 rc tag 或固定两周）由团队确认。
 - 维护债务上限（默认 15 个上游文件）由团队确认。
 - `docker-compose.dev.yml` 的 MySQL 服务是否直接改上游文件，或另建 `docker-compose.ext.yml` 叠加。
@@ -199,3 +231,6 @@ B 类改动每触碰一个上游文件（`ext/`、`web/src/features/ext-*`、`we
 
 - **2026-10-10**：初稿，基于上游 `v1.0.0-rc.42`（commit `1d4328e97`）的仓库调研。
 - **2026-10-11**：首次同步上游 main `42e694eb6`（`v1.0.0-rc.43` 之后 15 个提交），无冲突；fork 发布版本号从 `v1.0.0-rc.43-ext.1` 起。
+- **2026-10-14**：增加登记表核对、临时 worktree 合并试跑及 fork CI；修正规范中尚未落地的后端入口说明，明确 GitHub 定时任务的默认分支条件。
+
+- **2026-10-14**：同步上游 main `7de10f2c6`（31 个提交，含 `v1.0.0-rc.44`），合并提交 `96759cb2d`；七份 locale 按键合并，保留每种语言 179 个 fork 键。三模块 vet/build/test、前端 typecheck/build 与 2262 个测试通过；SQLite 3.50.4 / MySQL 5.7.44 / PostgreSQL 15.19 新建及 rc.44 升级验证通过，ClickHouse 25.8.33.6 日志导出通过。现有格式、lint、版权门禁未全绿；已推送 main、develop 与 feat/ext-fork-maintenance 至 origin。

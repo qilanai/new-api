@@ -34,6 +34,7 @@ import { Route as PricingIndexRouteImport } from './routes/pricing/index'
 import { Route as RankingsIndexRouteImport } from './routes/rankings/index'
 import { Route as SetupIndexRouteImport } from './routes/setup/index'
 import { Route as authUserResetRouteImport } from './routes/(auth)/user/reset'
+import { Route as AuthenticatedAppsIndexRouteImport } from './routes/_authenticated/apps/index'
 import { Route as AuthenticatedChannelsIndexRouteImport } from './routes/_authenticated/channels/index'
 import { Route as AuthenticatedChatChatIdRouteImport } from './routes/_authenticated/chat/$chatId'
 import { Route as AuthenticatedDashboardIndexRouteImport } from './routes/_authenticated/dashboard/index'
@@ -56,6 +57,11 @@ import { Route as AuthenticatedUsageLogsAuditRouteImport } from './routes/_authe
 import { Route as AuthenticatedUsersIndexRouteImport } from './routes/_authenticated/users/index'
 import { Route as AuthenticatedWalletIndexRouteImport } from './routes/_authenticated/wallet/index'
 import { Route as PricingModelIdIndexRouteImport } from './routes/pricing/$modelId/index'
+import { Route as AuthenticatedAppsChatIndexRouteImport } from './routes/_authenticated/apps/chat/index'
+import { Route as AuthenticatedAppsStudioIndexRouteImport } from './routes/_authenticated/apps/studio/index'
+import { Route as AuthenticatedAppsWorkspaceIndexRouteImport } from './routes/_authenticated/apps/workspace/index'
+import { Route as AuthenticatedAppsWorkspaceSplatRouteImport } from './routes/_authenticated/apps/workspace/$'
+import { Route as AuthenticatedExtAssetsIndexRouteImport } from './routes/_authenticated/ext/assets/index'
 import { Route as AuthenticatedSystemSettingsAuthIndexRouteImport } from './routes/_authenticated/system-settings/auth/index'
 import { Route as AuthenticatedSystemSettingsAuthSectionRouteImport } from './routes/_authenticated/system-settings/auth/$section'
 import { Route as AuthenticatedSystemSettingsBillingIndexRouteImport } from './routes/_authenticated/system-settings/billing/index'
@@ -72,6 +78,7 @@ import { Route as AuthenticatedSystemSettingsSecurityIndexRouteImport } from './
 import { Route as AuthenticatedSystemSettingsSecuritySectionRouteImport } from './routes/_authenticated/system-settings/security/$section'
 import { Route as AuthenticatedSystemSettingsSiteIndexRouteImport } from './routes/_authenticated/system-settings/site/index'
 import { Route as AuthenticatedSystemSettingsSiteSectionRouteImport } from './routes/_authenticated/system-settings/site/$section'
+import { Route as AuthenticatedExtAssetsSettingsIndexRouteImport } from './routes/_authenticated/ext/assets/settings/index'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -196,6 +203,11 @@ const authUserResetRoute = authUserResetRouteImport.update({
   id: '/user/reset',
   path: '/user/reset',
   getParentRoute: () => authRouteRoute,
+} as any)
+const AuthenticatedAppsIndexRoute = AuthenticatedAppsIndexRouteImport.update({
+  id: '/apps/',
+  path: '/apps/',
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedChannelsIndexRoute =
   AuthenticatedChannelsIndexRouteImport.update({
@@ -325,6 +337,36 @@ const PricingModelIdIndexRoute = PricingModelIdIndexRouteImport.update({
   path: '/pricing/$modelId/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedAppsChatIndexRoute =
+  AuthenticatedAppsChatIndexRouteImport.update({
+    id: '/apps/chat/',
+    path: '/apps/chat/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAppsStudioIndexRoute =
+  AuthenticatedAppsStudioIndexRouteImport.update({
+    id: '/apps/studio/',
+    path: '/apps/studio/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAppsWorkspaceIndexRoute =
+  AuthenticatedAppsWorkspaceIndexRouteImport.update({
+    id: '/apps/workspace/',
+    path: '/apps/workspace/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAppsWorkspaceSplatRoute =
+  AuthenticatedAppsWorkspaceSplatRouteImport.update({
+    id: '/apps/workspace/$',
+    path: '/apps/workspace/$',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedExtAssetsIndexRoute =
+  AuthenticatedExtAssetsIndexRouteImport.update({
+    id: '/ext/assets/',
+    path: '/ext/assets/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedSystemSettingsAuthIndexRoute =
   AuthenticatedSystemSettingsAuthIndexRouteImport.update({
     id: '/auth/',
@@ -421,6 +463,12 @@ const AuthenticatedSystemSettingsSiteSectionRoute =
     path: '/site/$section',
     getParentRoute: () => AuthenticatedSystemSettingsRouteRoute,
   } as any)
+const AuthenticatedExtAssetsSettingsIndexRoute =
+  AuthenticatedExtAssetsSettingsIndexRouteImport.update({
+    id: '/ext/assets/settings/',
+    path: '/ext/assets/settings/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -452,6 +500,7 @@ export interface FileRoutesByFullPath {
   '/models/$section': typeof AuthenticatedModelsSectionRoute
   '/usage-logs/$section': typeof AuthenticatedUsageLogsSectionRoute
   '/usage-logs/audit': typeof AuthenticatedUsageLogsAuditRoute
+  '/apps/': typeof AuthenticatedAppsIndexRoute
   '/channels/': typeof AuthenticatedChannelsIndexRoute
   '/dashboard/': typeof AuthenticatedDashboardIndexRoute
   '/keys/': typeof AuthenticatedKeysIndexRoute
@@ -468,6 +517,7 @@ export interface FileRoutesByFullPath {
   '/users/': typeof AuthenticatedUsersIndexRoute
   '/wallet/': typeof AuthenticatedWalletIndexRoute
   '/pricing/$modelId/': typeof PricingModelIdIndexRoute
+  '/apps/workspace/$': typeof AuthenticatedAppsWorkspaceSplatRoute
   '/system-settings/auth/$section': typeof AuthenticatedSystemSettingsAuthSectionRoute
   '/system-settings/billing/$section': typeof AuthenticatedSystemSettingsBillingSectionRoute
   '/system-settings/content/$section': typeof AuthenticatedSystemSettingsContentSectionRoute
@@ -476,6 +526,10 @@ export interface FileRoutesByFullPath {
   '/system-settings/request-policies/$section': typeof AuthenticatedSystemSettingsRequestPoliciesSectionRoute
   '/system-settings/security/$section': typeof AuthenticatedSystemSettingsSecuritySectionRoute
   '/system-settings/site/$section': typeof AuthenticatedSystemSettingsSiteSectionRoute
+  '/apps/chat/': typeof AuthenticatedAppsChatIndexRoute
+  '/apps/studio/': typeof AuthenticatedAppsStudioIndexRoute
+  '/apps/workspace/': typeof AuthenticatedAppsWorkspaceIndexRoute
+  '/ext/assets/': typeof AuthenticatedExtAssetsIndexRoute
   '/system-settings/auth/': typeof AuthenticatedSystemSettingsAuthIndexRoute
   '/system-settings/billing/': typeof AuthenticatedSystemSettingsBillingIndexRoute
   '/system-settings/content/': typeof AuthenticatedSystemSettingsContentIndexRoute
@@ -484,6 +538,7 @@ export interface FileRoutesByFullPath {
   '/system-settings/request-policies/': typeof AuthenticatedSystemSettingsRequestPoliciesIndexRoute
   '/system-settings/security/': typeof AuthenticatedSystemSettingsSecurityIndexRoute
   '/system-settings/site/': typeof AuthenticatedSystemSettingsSiteIndexRoute
+  '/ext/assets/settings/': typeof AuthenticatedExtAssetsSettingsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -514,6 +569,7 @@ export interface FileRoutesByTo {
   '/models/$section': typeof AuthenticatedModelsSectionRoute
   '/usage-logs/$section': typeof AuthenticatedUsageLogsSectionRoute
   '/usage-logs/audit': typeof AuthenticatedUsageLogsAuditRoute
+  '/apps': typeof AuthenticatedAppsIndexRoute
   '/channels': typeof AuthenticatedChannelsIndexRoute
   '/dashboard': typeof AuthenticatedDashboardIndexRoute
   '/keys': typeof AuthenticatedKeysIndexRoute
@@ -530,6 +586,7 @@ export interface FileRoutesByTo {
   '/users': typeof AuthenticatedUsersIndexRoute
   '/wallet': typeof AuthenticatedWalletIndexRoute
   '/pricing/$modelId': typeof PricingModelIdIndexRoute
+  '/apps/workspace/$': typeof AuthenticatedAppsWorkspaceSplatRoute
   '/system-settings/auth/$section': typeof AuthenticatedSystemSettingsAuthSectionRoute
   '/system-settings/billing/$section': typeof AuthenticatedSystemSettingsBillingSectionRoute
   '/system-settings/content/$section': typeof AuthenticatedSystemSettingsContentSectionRoute
@@ -538,6 +595,10 @@ export interface FileRoutesByTo {
   '/system-settings/request-policies/$section': typeof AuthenticatedSystemSettingsRequestPoliciesSectionRoute
   '/system-settings/security/$section': typeof AuthenticatedSystemSettingsSecuritySectionRoute
   '/system-settings/site/$section': typeof AuthenticatedSystemSettingsSiteSectionRoute
+  '/apps/chat': typeof AuthenticatedAppsChatIndexRoute
+  '/apps/studio': typeof AuthenticatedAppsStudioIndexRoute
+  '/apps/workspace': typeof AuthenticatedAppsWorkspaceIndexRoute
+  '/ext/assets': typeof AuthenticatedExtAssetsIndexRoute
   '/system-settings/auth': typeof AuthenticatedSystemSettingsAuthIndexRoute
   '/system-settings/billing': typeof AuthenticatedSystemSettingsBillingIndexRoute
   '/system-settings/content': typeof AuthenticatedSystemSettingsContentIndexRoute
@@ -546,6 +607,7 @@ export interface FileRoutesByTo {
   '/system-settings/request-policies': typeof AuthenticatedSystemSettingsRequestPoliciesIndexRoute
   '/system-settings/security': typeof AuthenticatedSystemSettingsSecurityIndexRoute
   '/system-settings/site': typeof AuthenticatedSystemSettingsSiteIndexRoute
+  '/ext/assets/settings': typeof AuthenticatedExtAssetsSettingsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -580,6 +642,7 @@ export interface FileRoutesById {
   '/_authenticated/models/$section': typeof AuthenticatedModelsSectionRoute
   '/_authenticated/usage-logs/$section': typeof AuthenticatedUsageLogsSectionRoute
   '/_authenticated/usage-logs/audit': typeof AuthenticatedUsageLogsAuditRoute
+  '/_authenticated/apps/': typeof AuthenticatedAppsIndexRoute
   '/_authenticated/channels/': typeof AuthenticatedChannelsIndexRoute
   '/_authenticated/dashboard/': typeof AuthenticatedDashboardIndexRoute
   '/_authenticated/keys/': typeof AuthenticatedKeysIndexRoute
@@ -596,6 +659,7 @@ export interface FileRoutesById {
   '/_authenticated/users/': typeof AuthenticatedUsersIndexRoute
   '/_authenticated/wallet/': typeof AuthenticatedWalletIndexRoute
   '/pricing/$modelId/': typeof PricingModelIdIndexRoute
+  '/_authenticated/apps/workspace/$': typeof AuthenticatedAppsWorkspaceSplatRoute
   '/_authenticated/system-settings/auth/$section': typeof AuthenticatedSystemSettingsAuthSectionRoute
   '/_authenticated/system-settings/billing/$section': typeof AuthenticatedSystemSettingsBillingSectionRoute
   '/_authenticated/system-settings/content/$section': typeof AuthenticatedSystemSettingsContentSectionRoute
@@ -604,6 +668,10 @@ export interface FileRoutesById {
   '/_authenticated/system-settings/request-policies/$section': typeof AuthenticatedSystemSettingsRequestPoliciesSectionRoute
   '/_authenticated/system-settings/security/$section': typeof AuthenticatedSystemSettingsSecuritySectionRoute
   '/_authenticated/system-settings/site/$section': typeof AuthenticatedSystemSettingsSiteSectionRoute
+  '/_authenticated/apps/chat/': typeof AuthenticatedAppsChatIndexRoute
+  '/_authenticated/apps/studio/': typeof AuthenticatedAppsStudioIndexRoute
+  '/_authenticated/apps/workspace/': typeof AuthenticatedAppsWorkspaceIndexRoute
+  '/_authenticated/ext/assets/': typeof AuthenticatedExtAssetsIndexRoute
   '/_authenticated/system-settings/auth/': typeof AuthenticatedSystemSettingsAuthIndexRoute
   '/_authenticated/system-settings/billing/': typeof AuthenticatedSystemSettingsBillingIndexRoute
   '/_authenticated/system-settings/content/': typeof AuthenticatedSystemSettingsContentIndexRoute
@@ -612,6 +680,7 @@ export interface FileRoutesById {
   '/_authenticated/system-settings/request-policies/': typeof AuthenticatedSystemSettingsRequestPoliciesIndexRoute
   '/_authenticated/system-settings/security/': typeof AuthenticatedSystemSettingsSecurityIndexRoute
   '/_authenticated/system-settings/site/': typeof AuthenticatedSystemSettingsSiteIndexRoute
+  '/_authenticated/ext/assets/settings/': typeof AuthenticatedExtAssetsSettingsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -645,6 +714,7 @@ export interface FileRouteTypes {
     | '/models/$section'
     | '/usage-logs/$section'
     | '/usage-logs/audit'
+    | '/apps/'
     | '/channels/'
     | '/dashboard/'
     | '/keys/'
@@ -661,6 +731,7 @@ export interface FileRouteTypes {
     | '/users/'
     | '/wallet/'
     | '/pricing/$modelId/'
+    | '/apps/workspace/$'
     | '/system-settings/auth/$section'
     | '/system-settings/billing/$section'
     | '/system-settings/content/$section'
@@ -669,6 +740,10 @@ export interface FileRouteTypes {
     | '/system-settings/request-policies/$section'
     | '/system-settings/security/$section'
     | '/system-settings/site/$section'
+    | '/apps/chat/'
+    | '/apps/studio/'
+    | '/apps/workspace/'
+    | '/ext/assets/'
     | '/system-settings/auth/'
     | '/system-settings/billing/'
     | '/system-settings/content/'
@@ -677,6 +752,7 @@ export interface FileRouteTypes {
     | '/system-settings/request-policies/'
     | '/system-settings/security/'
     | '/system-settings/site/'
+    | '/ext/assets/settings/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -707,6 +783,7 @@ export interface FileRouteTypes {
     | '/models/$section'
     | '/usage-logs/$section'
     | '/usage-logs/audit'
+    | '/apps'
     | '/channels'
     | '/dashboard'
     | '/keys'
@@ -723,6 +800,7 @@ export interface FileRouteTypes {
     | '/users'
     | '/wallet'
     | '/pricing/$modelId'
+    | '/apps/workspace/$'
     | '/system-settings/auth/$section'
     | '/system-settings/billing/$section'
     | '/system-settings/content/$section'
@@ -731,6 +809,10 @@ export interface FileRouteTypes {
     | '/system-settings/request-policies/$section'
     | '/system-settings/security/$section'
     | '/system-settings/site/$section'
+    | '/apps/chat'
+    | '/apps/studio'
+    | '/apps/workspace'
+    | '/ext/assets'
     | '/system-settings/auth'
     | '/system-settings/billing'
     | '/system-settings/content'
@@ -739,6 +821,7 @@ export interface FileRouteTypes {
     | '/system-settings/request-policies'
     | '/system-settings/security'
     | '/system-settings/site'
+    | '/ext/assets/settings'
   id:
     | '__root__'
     | '/'
@@ -772,6 +855,7 @@ export interface FileRouteTypes {
     | '/_authenticated/models/$section'
     | '/_authenticated/usage-logs/$section'
     | '/_authenticated/usage-logs/audit'
+    | '/_authenticated/apps/'
     | '/_authenticated/channels/'
     | '/_authenticated/dashboard/'
     | '/_authenticated/keys/'
@@ -788,6 +872,7 @@ export interface FileRouteTypes {
     | '/_authenticated/users/'
     | '/_authenticated/wallet/'
     | '/pricing/$modelId/'
+    | '/_authenticated/apps/workspace/$'
     | '/_authenticated/system-settings/auth/$section'
     | '/_authenticated/system-settings/billing/$section'
     | '/_authenticated/system-settings/content/$section'
@@ -796,6 +881,10 @@ export interface FileRouteTypes {
     | '/_authenticated/system-settings/request-policies/$section'
     | '/_authenticated/system-settings/security/$section'
     | '/_authenticated/system-settings/site/$section'
+    | '/_authenticated/apps/chat/'
+    | '/_authenticated/apps/studio/'
+    | '/_authenticated/apps/workspace/'
+    | '/_authenticated/ext/assets/'
     | '/_authenticated/system-settings/auth/'
     | '/_authenticated/system-settings/billing/'
     | '/_authenticated/system-settings/content/'
@@ -804,6 +893,7 @@ export interface FileRouteTypes {
     | '/_authenticated/system-settings/request-policies/'
     | '/_authenticated/system-settings/security/'
     | '/_authenticated/system-settings/site/'
+    | '/_authenticated/ext/assets/settings/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -1002,6 +1092,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof authUserResetRouteImport
       parentRoute: typeof authRouteRoute
     }
+    '/_authenticated/apps/': {
+      id: '/_authenticated/apps/'
+      path: '/apps'
+      fullPath: '/apps/'
+      preLoaderRoute: typeof AuthenticatedAppsIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/channels/': {
       id: '/_authenticated/channels/'
       path: '/channels'
@@ -1156,6 +1253,41 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PricingModelIdIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/apps/chat/': {
+      id: '/_authenticated/apps/chat/'
+      path: '/apps/chat'
+      fullPath: '/apps/chat/'
+      preLoaderRoute: typeof AuthenticatedAppsChatIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/apps/studio/': {
+      id: '/_authenticated/apps/studio/'
+      path: '/apps/studio'
+      fullPath: '/apps/studio/'
+      preLoaderRoute: typeof AuthenticatedAppsStudioIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/apps/workspace/': {
+      id: '/_authenticated/apps/workspace/'
+      path: '/apps/workspace'
+      fullPath: '/apps/workspace/'
+      preLoaderRoute: typeof AuthenticatedAppsWorkspaceIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/apps/workspace/$': {
+      id: '/_authenticated/apps/workspace/$'
+      path: '/apps/workspace/$'
+      fullPath: '/apps/workspace/$'
+      preLoaderRoute: typeof AuthenticatedAppsWorkspaceSplatRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/ext/assets/': {
+      id: '/_authenticated/ext/assets/'
+      path: '/ext/assets'
+      fullPath: '/ext/assets/'
+      preLoaderRoute: typeof AuthenticatedExtAssetsIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/system-settings/auth/': {
       id: '/_authenticated/system-settings/auth/'
       path: '/auth'
@@ -1268,6 +1400,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSystemSettingsSiteSectionRouteImport
       parentRoute: typeof AuthenticatedSystemSettingsRouteRoute
     }
+    '/_authenticated/ext/assets/settings/': {
+      id: '/_authenticated/ext/assets/settings/'
+      path: '/ext/assets/settings'
+      fullPath: '/ext/assets/settings/'
+      preLoaderRoute: typeof AuthenticatedExtAssetsSettingsIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
@@ -1369,6 +1508,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedModelsSectionRoute: typeof AuthenticatedModelsSectionRoute
   AuthenticatedUsageLogsSectionRoute: typeof AuthenticatedUsageLogsSectionRoute
   AuthenticatedUsageLogsAuditRoute: typeof AuthenticatedUsageLogsAuditRoute
+  AuthenticatedAppsIndexRoute: typeof AuthenticatedAppsIndexRoute
   AuthenticatedChannelsIndexRoute: typeof AuthenticatedChannelsIndexRoute
   AuthenticatedDashboardIndexRoute: typeof AuthenticatedDashboardIndexRoute
   AuthenticatedKeysIndexRoute: typeof AuthenticatedKeysIndexRoute
@@ -1383,6 +1523,12 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedUsageLogsIndexRoute: typeof AuthenticatedUsageLogsIndexRoute
   AuthenticatedUsersIndexRoute: typeof AuthenticatedUsersIndexRoute
   AuthenticatedWalletIndexRoute: typeof AuthenticatedWalletIndexRoute
+  AuthenticatedAppsWorkspaceSplatRoute: typeof AuthenticatedAppsWorkspaceSplatRoute
+  AuthenticatedAppsChatIndexRoute: typeof AuthenticatedAppsChatIndexRoute
+  AuthenticatedAppsStudioIndexRoute: typeof AuthenticatedAppsStudioIndexRoute
+  AuthenticatedAppsWorkspaceIndexRoute: typeof AuthenticatedAppsWorkspaceIndexRoute
+  AuthenticatedExtAssetsIndexRoute: typeof AuthenticatedExtAssetsIndexRoute
+  AuthenticatedExtAssetsSettingsIndexRoute: typeof AuthenticatedExtAssetsSettingsIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -1395,6 +1541,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedModelsSectionRoute: AuthenticatedModelsSectionRoute,
   AuthenticatedUsageLogsSectionRoute: AuthenticatedUsageLogsSectionRoute,
   AuthenticatedUsageLogsAuditRoute: AuthenticatedUsageLogsAuditRoute,
+  AuthenticatedAppsIndexRoute: AuthenticatedAppsIndexRoute,
   AuthenticatedChannelsIndexRoute: AuthenticatedChannelsIndexRoute,
   AuthenticatedDashboardIndexRoute: AuthenticatedDashboardIndexRoute,
   AuthenticatedKeysIndexRoute: AuthenticatedKeysIndexRoute,
@@ -1410,6 +1557,13 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedUsageLogsIndexRoute: AuthenticatedUsageLogsIndexRoute,
   AuthenticatedUsersIndexRoute: AuthenticatedUsersIndexRoute,
   AuthenticatedWalletIndexRoute: AuthenticatedWalletIndexRoute,
+  AuthenticatedAppsWorkspaceSplatRoute: AuthenticatedAppsWorkspaceSplatRoute,
+  AuthenticatedAppsChatIndexRoute: AuthenticatedAppsChatIndexRoute,
+  AuthenticatedAppsStudioIndexRoute: AuthenticatedAppsStudioIndexRoute,
+  AuthenticatedAppsWorkspaceIndexRoute: AuthenticatedAppsWorkspaceIndexRoute,
+  AuthenticatedExtAssetsIndexRoute: AuthenticatedExtAssetsIndexRoute,
+  AuthenticatedExtAssetsSettingsIndexRoute:
+    AuthenticatedExtAssetsSettingsIndexRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =

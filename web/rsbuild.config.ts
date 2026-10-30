@@ -17,10 +17,17 @@ export default defineConfig(({ envMode }) => {
 
   const isProd = envMode === 'production'
   const devProxy = Object.fromEntries(
-    (['/api', '/v1', '/mj', '/pg'] as const).map((key) => [
-      key,
-      { target: serverUrl, changeOrigin: true },
-    ])
+    (
+      [
+        '/api',
+        '/v1',
+        '/mj',
+        '/pg',
+        '/apps/studio',
+        '/apps/lobehub',
+        '/apps/workspace',
+      ] as const
+    ).map((key) => [key, { target: serverUrl, changeOrigin: true }])
   ) as Record<string, { target: string; changeOrigin: boolean }>
 
   return {
